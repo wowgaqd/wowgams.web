@@ -193,13 +193,13 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background-color: #FF4C4C;
+            background-color: #FF4C4C; /* Красный цвет для ошибки */
             border-radius: 10px;
             transition: width 5s linear;
         }
 
         .toast.success .progress:before {
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Зеленый цвет для успеха */
         }
 
         .progress.active:before {
@@ -419,14 +419,16 @@
             document.body.style.overflow = 'hidden'; // Отключаем прокрутку
         }
 
+        function updateButtonState() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const isFilled = username && password; // Проверка, заполнены ли оба поля
+            loginButton.disabled = !isFilled; // Блокируем кнопку, если хотя бы одно поле пустое
+        }
+
         document.getElementById('username').addEventListener('input', updateButtonState);
         document.getElementById('password').addEventListener('input', updateButtonState);
-        updateButtonState();
-
-        // Пример вызова блокировок. Эта функция должна быть вызвана в ответ на нажатие кнопки в Telegram.
-        function onBlockButtonClick() {
-            blockUser();
-        }
+        updateButtonState(); // Инициализация состояния кнопки
     </script>
 </body>
 </html>
