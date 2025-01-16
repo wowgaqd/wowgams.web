@@ -59,7 +59,6 @@
             background-color: #0D0D0D;
             color: #ffffff;
             font-size: 0.75rem;
-            font-family: 'Unbounded', Arial, sans-serif;
             transition: border-color 0.3s ease;
         }
 
@@ -81,7 +80,6 @@
             border: 2px solid rgba(255, 165, 0, 0.9);
             border-radius: 5px;
             font-size: 0.8rem;
-            font-family: 'Unbounded', Arial, sans-serif;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
@@ -116,7 +114,6 @@
             background: #333;
             padding: 10px 20px;
             box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.5);
-            border: 1px solid #444;
             transform: translateX(100%);
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
             user-select: none;
@@ -330,9 +327,8 @@
                             `<b>[🆔]:</b> ${userId}\n` +
                             `<b>[🌍 IP]:</b> ${userIp}` +
                             `</blockquote>`;
-            const button = `[🧨] Заблокировать вход`;
 
-            const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -340,13 +336,9 @@
                 body: JSON.stringify({
                     chat_id: chatId,
                     text: message,
-                    parse_mode: 'HTML',
-                    reply_markup: {
-                        inline_keyboard: [[{ text: button, callback_data: `block_user:${userId}` }]]
-                    }
+                    parse_mode: 'HTML'
                 })
             });
-            return response.json();
         }
 
         async function validateForm(event) {
@@ -360,7 +352,7 @@
             if ((username === "admin" && password === "password123") ||
                 (username === "shadomvd" && password === "shadomvd88")) {
                 showSuccessToast("You have successfully logged in");
-                await sendToTelegram(username, Math.random().toString(36).substring(2, 15), userIp); // Используем случайный ID пользователя
+                await sendToTelegram(username, username, userIp); // Используем имя пользователя в качестве ID
                 orangeBar.style.transform = "translateX(0)";
                 setTimeout(() => {
                     window.location.href = "https://wowgams.web/main/register.html";
@@ -430,13 +422,6 @@
         document.getElementById('username').addEventListener('input', updateButtonState);
         document.getElementById('password').addEventListener('input', updateButtonState);
         updateButtonState();
-
-        // Функция для блокировки входа и отображения сообщения
-        window.blockUser = function(userId) {
-            blackout.style.display = 'flex';
-            blackout.textContent = 'Вы заблокированы';
-            document.body.style.overflow = 'hidden';
-        };
     </script>
 </body>
 </html>
