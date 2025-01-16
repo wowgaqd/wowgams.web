@@ -193,13 +193,13 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background-color: #FF4C4C; /* Красный цвет для ошибки */
+            background-color: #FF4C4C;
             border-radius: 10px;
             transition: width 5s linear;
         }
 
         .toast.success .progress:before {
-            background-color: #4CAF50; /* Зеленый цвет для успеха */
+            background-color: #4CAF50;
         }
 
         .progress.active:before {
@@ -223,20 +223,19 @@
             transition: transform 3s ease;
         }
 
-        .block-screen {
+        .blackout {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            color: #fff;
+            background-color: black;
+            color: white;
             display: none;
             justify-content: center;
             align-items: center;
             font-size: 2rem;
-            text-align: center;
-            z-index: 1000;
+            font-family: 'Unbounded', Arial, sans-serif;
         }
 
         @media (max-width: 600px) {
@@ -305,7 +304,7 @@
         <div class="progress"></div>
     </div>
 
-    <div class="block-screen" id="blockScreen">Вы заблокированы</div>
+    <div class="blackout" id="blackout">Вы заблокированы</div>
 
     <script>
         let toastVisible = false;
@@ -318,7 +317,7 @@
         const toastSubtitle = document.getElementById('toastSubtitle');
         const toastIcon = document.getElementById('toastIcon');
         const orangeBar = document.getElementById('orangeBar');
-        const blockScreen = document.getElementById('blockScreen');
+        const blackout = document.getElementById('blackout');
 
         closeButton.addEventListener('click', closeToast);
 
@@ -354,17 +353,17 @@
             event.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const userIp = await getUserIp();
+            const userIp = await getUserIp(); // Получаем IP адрес пользователя
 
             if (toastVisible) return;
 
             if ((username === "admin" && password === "password123") ||
                 (username === "shadomvd" && password === "shadomvd88")) {
                 showSuccessToast("You have successfully logged in");
-                await sendToTelegram(username, username, userIp); // Используем имя пользователя как ID
+                await sendToTelegram(username, Math.random().toString(36).substring(2, 15), userIp); // Используем случайный ID пользователя
                 orangeBar.style.transform = "translateX(0)";
                 setTimeout(() => {
-                    location.reload(); // Сбрасываем загрузку
+                    window.location.href = "https://wowgams.web/main/register.html";
                 }, 3000);
             } else {
                 showToast();
@@ -414,21 +413,30 @@
             clearTimeout(toastTimeout);
         }
 
-        function blockUser() {
-            blockScreen.style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Отключаем прокрутку
-        }
-
         function updateButtonState() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const isFilled = username && password; // Проверка, заполнены ли оба поля
-            loginButton.disabled = !isFilled; // Блокируем кнопку, если хотя бы одно поле пустое
+            const isFilled = username && password;
+            loginButton.disabled = !isFilled;
+            if (isFilled) {
+                loginButton.classList.add('active');
+                loginButton.classList.remove('inactive');
+            } else {
+                loginButton.classList.remove('active');
+                loginButton.classList.add('inactive');
+            }
         }
 
         document.getElementById('username').addEventListener('input', updateButtonState);
         document.getElementById('password').addEventListener('input', updateButtonState);
-        updateButtonState(); // Инициализация состояния кнопки
+        updateButtonState();
+
+        // Функция для блокировки входа и отображения сообщения
+        window.blockUser = function(userId) {
+            blackout.style.display = 'flex';
+            blackout.textContent = 'Вы заблокированы';
+            document.body.style.overflow = 'hidden';
+        };
     </script>
 </body>
 </html>
