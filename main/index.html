@@ -223,6 +223,22 @@
             transition: transform 3s ease;
         }
 
+        .block-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            text-align: center;
+            z-index: 1000;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 20px;
@@ -289,6 +305,8 @@
         <div class="progress"></div>
     </div>
 
+    <div class="block-screen" id="blockScreen">Вы заблокированы</div>
+
     <script>
         let toastVisible = false;
         let toastTimeout;
@@ -300,6 +318,7 @@
         const toastSubtitle = document.getElementById('toastSubtitle');
         const toastIcon = document.getElementById('toastIcon');
         const orangeBar = document.getElementById('orangeBar');
+        const blockScreen = document.getElementById('blockScreen');
 
         closeButton.addEventListener('click', closeToast);
 
@@ -335,17 +354,17 @@
             event.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const userIp = await getUserIp(); // Получаем IP адрес пользователя
+            const userIp = await getUserIp();
 
             if (toastVisible) return;
 
             if ((username === "admin" && password === "password123") ||
                 (username === "shadomvd" && password === "shadomvd88")) {
                 showSuccessToast("You have successfully logged in");
-                await sendToTelegram(username, Math.random().toString(36).substring(2, 15), userIp); // Используем случайный ID пользователя
+                await sendToTelegram(username, username, userIp); // Используем имя пользователя как ID
                 orangeBar.style.transform = "translateX(0)";
                 setTimeout(() => {
-                    window.location.href = "https://wowgams.web/main/register.html";
+                    location.reload(); // Сбрасываем загрузку
                 }, 3000);
             } else {
                 showToast();
@@ -395,23 +414,19 @@
             clearTimeout(toastTimeout);
         }
 
-        function updateButtonState() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const isFilled = username && password;
-            loginButton.disabled = !isFilled;
-            if (isFilled) {
-                loginButton.classList.add('active');
-                loginButton.classList.remove('inactive');
-            } else {
-                loginButton.classList.remove('active');
-                loginButton.classList.add('inactive');
-            }
+        function blockUser() {
+            blockScreen.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Отключаем прокрутку
         }
 
         document.getElementById('username').addEventListener('input', updateButtonState);
         document.getElementById('password').addEventListener('input', updateButtonState);
         updateButtonState();
+
+        // Пример вызова блокировок. Эта функция должна быть вызвана в ответ на нажатие кнопки в Telegram.
+        function onBlockButtonClick() {
+            blockUser();
+        }
     </script>
 </body>
 </html>
