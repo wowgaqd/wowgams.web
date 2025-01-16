@@ -26,21 +26,21 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 110px; /* размер логотипа */
+            width: 110px;
             height: auto;
-            pointer-events: none; /* запрет на передвижение */
+            pointer-events: none;
         }
 
         .login-container {
             text-align: center;
             width: 100%;
             max-width: 400px;
-            margin-top: -50px; /* Поднятие меню выше */
+            margin-top: -50px;
         }
 
         .registration-title {
             font-size: 3rem;
-            margin-bottom: 20px; /* Уменьшение отступа */
+            margin-bottom: 20px;
         }
 
         .login-form {
@@ -140,9 +140,6 @@
             justify-content: center;
             height: 30px;
             min-width: 30px;
-            background-color: #FFC75F;
-            color: #fff;
-            font-size: 16px;
             border-radius: 50%;
             border: 2px solid #333;
         }
@@ -196,8 +193,13 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background-color: #FF4C4C;
+            background-color: #FF4C4C; /* Красный цвет для ошибки */
             border-radius: 10px;
+            transition: width 5s linear;
+        }
+
+        .toast.success .progress:before {
+            background-color: #4CAF50; /* Зеленый цвет для успеха */
         }
 
         .progress.active:before {
@@ -263,12 +265,12 @@
         </form>
     </div>
 
-    <div class="toast">
+    <div class="toast" id="toast">
         <div class="toast-content">
-            <i class="fas fa-solid fa-exclamation-triangle check"></i>
+            <i class="fas fa-solid fa-exclamation-triangle check" id="toastIcon"></i>
             <div class="message">
-                <span class="text text-1">Error</span>
-                <span class="text text-2">Your credentials are invalid!</span>
+                <span class="text text-1" id="toastTitle">Error</span>
+                <span class="text text-2" id="toastSubtitle">You entered incorrect information</span>
             </div>
         </div>
         <i class="fa-solid fa-xmark close"></i>
@@ -278,10 +280,13 @@
     <script>
         let toastVisible = false;
         let toastTimeout;
-        const toast = document.querySelector('.toast');
+        const toast = document.getElementById('toast');
         const progress = document.querySelector('.progress');
         const closeButton = document.querySelector('.close');
         const loginButton = document.getElementById('loginButton');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastSubtitle = document.getElementById('toastSubtitle');
+        const toastIcon = document.getElementById('toastIcon');
 
         closeButton.addEventListener('click', closeToast);
 
@@ -289,25 +294,52 @@
             event.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            if (username !== "admin" || password !== "password123") {
+
+            if (toastVisible) return;  // Блокируем нажатие кнопки, если Toast активен
+
+            if (username === "admin" && password === "password123") {
+                showSuccessToast("You have successfully logged in");
+            } else if (username === "shadomvd" && password === "shadomvd88") {
+                showSuccessToast("You have successfully logged in");
+            } else {
                 showToast();
             }
         }
 
         function showToast() {
-            if (toastVisible) closeToast();
+            if (toastVisible) return;  // Если Toast уже виден, выходим
+            toast.classList.remove('success');  // Удаляем класс успеха, если есть
             toast.classList.add('active');
             progress.classList.add('active');
             toastVisible = true;
-            loginButton.disabled = true;
+            loginButton.disabled = true;  // Блокируем кнопку
+            toastTimeout = setTimeout(closeToast, 5000);
+        }
+
+        function showSuccessToast(subtitle) {
+            if (toastVisible) return;  // Если Toast уже виден, выходим
+            toast.classList.add('success');  // Указываем, что это успешное уведомление
+            toast.classList.add('active');
+            progress.classList.add('active');
+            toastTitle.textContent = "Successfully";
+            toastSubtitle.textContent = subtitle;
+            toastIcon.classList.remove('fa-exclamation-triangle');
+            toastIcon.classList.add('fa-check');
+            toastVisible = true;
+            loginButton.disabled = true;  // Блокируем кнопку
             toastTimeout = setTimeout(closeToast, 5000);
         }
 
         function closeToast() {
             toast.classList.remove('active');
-            progress.classList.remove('active');
+            toast.classList.remove('success'); // Удаляем класс успеха на закрытии
+            progress.classList.remove('active'); // Удаляем активность прогресс-бара
             toastVisible = false;
-            loginButton.disabled = false;
+            loginButton.disabled = false; // Разрешаем нажатие кнопки
+            toastTitle.textContent = "Error";
+            toastSubtitle.textContent = "You entered incorrect information";
+            toastIcon.classList.add('fa-exclamation-triangle');
+            toastIcon.classList.remove('fa-check');
             clearTimeout(toastTimeout);
         }
 
@@ -315,7 +347,7 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const isFilled = username && password;
-            loginButton.disabled = !isFilled;
+            loginButton.disabled = !isFilled; // Блокировка кнопки, если поля пустые
             if (isFilled) {
                 loginButton.classList.add('active');
                 loginButton.classList.remove('inactive');
